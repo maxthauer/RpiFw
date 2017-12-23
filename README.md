@@ -16,7 +16,7 @@ Raspberry Pi firewall for our SEC440 final project at Champlain College
 
 ## Credits
 
-- Ethan Farmer - [@md5hashtag](https://twitter.com/md5hashtag)
+- Ethan Farmer - [@efarm3r](https://twitter.com/efarm3r)
 
-- Tyler Boire - [@efarm3r](https://twitter.com/efarm3r)
+- Tyler Boire - [@md5hashtag](https://twitter.com/md5hashtag)
 

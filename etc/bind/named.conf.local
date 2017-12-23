@@ -1,0 +1,23 @@
+//
+// Do any local configuration here
+//
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+include "/etc/bind/blocked/blocked-local.conf";
+
+zone "rpi.local" {
+    type master;
+    file "/etc/bind/zones/db.rpi.local"; # zone file path
+    allow-transfer { 10.98.99.1; };         # ns2 private IP address - secondary
+};
+zone "99.98.10.in-addr.arpa" {
+    type master;
+    file "/etc/bind/zones/db.10.98.99";   # 10.98.99.0/30
+    allow-transfer { 10.98.99.1; }; 
+};
+zone "blocked" {
+    type master;
+    file "/etc/bind/rpz/blocked.zone";
+};

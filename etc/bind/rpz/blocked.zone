@@ -1,0 +1,13 @@
+$TTL 600        ; 10 minutes
+@                       SOA     raspberrypi.rpi.local. root.rpi.local. (
+		               42        ; serial
+                               900        ; refresh (15 minutes)
+                               60         ; retry (1 minute)
+                               604800     ; expire (1 week)
+                               43200      ; minimum (12 hours)
+                               )
+                       NS      raspberrypi.rpi.local.
+                       MX      1 raspberrypi.rpi.local.
+$TTL 302400     ; 3 days 12 hours
+@               IN      A       10.98.99.1
+*               IN      A       10.98.99.1

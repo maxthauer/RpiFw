@@ -1,0 +1,147 @@
+Raspberry Pi firewall
+
+Webpage with button to start scanning for wireless networks
+
+-display output as result
+-form for user to enter the ssid of their choice and then submit the form, calling a subprocess
+
+-next page with ability to block certain ports on the external interface (wifi) inbound and outbund
+
+-bottom of the page tails dns rpz and snort logs
+
+eth0 address range rpi:
+10.98.99.0/30 (255.255.255.252) 
+network 10.98.99.0
+address 1 (pi) 10.98.99.1
+address 2 (client) 10.98.99.2
+broadcast 10.98.99.3 
+
+domain: rpi.local
+raspberrypi.rpi.local
+client.rpi.local
+
+#/etc/ssh/sshd_config
+ListtenAddress 10.98.99.1
+
+#perhaps dont use dhcp, dhcp allows anybody to connect
+
+
+## some setup since some files need extra permissions by default##
+chmod 644 /var/log/syslog
+chmod 644 /var/log/ufw.log
+
+
+#enable cgi#
+a2enmod /etc/apache2/mods-available/cgi.load
+service apache2 restart
+
+#or do this#
+cgi-bin in apache
+ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+	<Directory "/usr/lib/cgi-bin">
+	</Directory>
+LoadModule cgi_module /usr/lib/apache2/modules/mod_cgi.so
+
+
+#Edit eth0 network /etc/network/interfaces
+
+auto lo
+iface lo inet loopback
+iface eth0 inet static
+        address 10.98.99.1
+        netmask 255.255.255.252
+allow-hotplug wlan0
+iface wlan0 inet dhcp
+
+# then
+service networking restart  #or just reboot
+
+#plug in network cable, configure client to be 10.98.99.2 255.255.255.252 with gateway of 10.98.99.1
+
+cronjob to run:
+iwlist wlan0 scan  # every minute
+
+#Raspberry pi dhcp server:
+
+#edit /etc/default/isc-dhcp-server
+INTERFACES"eth0"
+
+
+#edit /etc/dhcp/dhcpd.conf
+
+option domain-name "rpi.local"
+option domain-name-servers 10.100.101.1
+subnet 10.100.101.0 netmask 255.255.255.0 {
+	range 10.100.101.10 10.100.101.20;
+	option routers raspberrypi.pi.local;
+}
+
+#then
+/etc/init.d/isc-dhcp-server restart
+service isc-dhcp-server start
+
+
+  					Channel:10
+                    Frequency:2.457 GHz (Channel 10)
+                    Quality=55/70  Signal level=-55 dBm  
+                    Encryption key:on
+                    ESSID:""
+
+
+# Search for wifi networks:
+
+iwlist wlan0 scan | grep -B 6 "Encryption key:off"   # lists open networks only
+
+
+#old
+# iwlist wlan0 scan | grep -B 6 "Encryption key:off" | grep -E 'ESSID|Channel' | awk '{print $1, $3, $4}' | awk ' {print;} NR % 2 == 0 { print ""; }'
+
+# current:
+# run this to initialize scan for browser
+iwlist wlan0 scan | grep "Encryption key:off" -B 2 -A 1 | grep -v "Encryption key:off" | grep -v "Quality="
+
+# Join a network:
+iwconfig wlan0 essid "xfinitywifi" channel 11 mode Managed && dhclient wlan0
+
+# or
+#you also have to run this to get an IP via dhcp
+# dhclient wlan0
+
+#then
+ifconfig wlan0 # if you have an IP address, you are connected
+
+# Tail rpz queries
+tail /var/log/rpz.log
+
+
+
+apt-get install tcpdump
+
+
+pip3 install virtualenv
+sudo apt-get install virtualenv
+
+
+
+### bind setup####
+
+#edit /etc/bind/named.conf.options
+forwarders {
+	 	208.67.222.222; 
+		208.67.220.220; 
+		8.8.8.8;
+		8.8.4.4;
+	 };
+####
+mkdir /etc/bind/zones
+#edit 
+
+
+
+
+
+
+#iwlist wlan0 scan | grep Encryption key:off -B 2 -A 1 | grep -v Encryption key:off | grep -v Quality=
+
+
+
